@@ -3,6 +3,11 @@
 This is a browser-based tool for annotating sentences with Framenet 1.5 frames and arguments.
 It starts a web server, which runs on your local computer and is only accessible from there.
 
+![Screenshot](https://dl.dropboxusercontent.com/u/1423772/framenet-annotation-screenshot.jpg "Screenshot")
+
+*Screenshot shows the annotation of a tweet from the [Ritter and Clark](https://github.com/aritter/twitter_nlp) corpus* 
+
+
 As input the tool accepts a folder of tab-separated files with one token per line and one sentence per file.
  The final column is a space-separated list of frames that could be triggered by that token.
  The output looks like the input, except the last column has been replaced by the annotations selected in the interface.
