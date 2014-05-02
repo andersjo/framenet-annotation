@@ -1,0 +1,50 @@
+<div class="frame row" id="{{ pa.i }}-{{ frame.name }}">
+  <div class="col-md-8">
+      <h4>Core</h4>
+          {% for fe in frame.fe_by_type['Core'] %}
+           <div class="input-group frame-element">
+            <input class="word-index-input" size="2"
+                   data-abbrev="{{ fe.abbrev }}"
+                   name="{{ pa.i }}-{{ frame.name }}-{{fe.name}}">
+            <label class="control-label">{{ fe.name }}</label>
+            <span class="word-index-help">{{ fe.definition }}</span>
+          </div>
+          {% endfor %}
+
+      <h4>Peripheral</h4>
+          {% for fe in frame.fe_by_type['Peripheral'] %}
+           <div class="input-group frame-element">
+            <input class="word-index-input" size="2"
+                   data-abbrev="{{ fe.abbrev }}"
+                   name="{{ pa.i }}-{{ frame.name }}-{{fe.name}}">
+            <label class="control-label">{{ fe.name }}</label>
+            <span class="word-index-help">{{ fe.definition }}</span>
+          </div>
+          {% endfor %}
+
+       <h4>Extra-Thematic</h4>
+          {% for fe in frame.fe_by_type['Extra-Thematic'] %}
+            <div class="input-group frame-element">
+            <input class="word-index-input" size="2"
+                   data-abbrev="{{ fe.abbrev }}"
+                   name="{{ pa.i }}-{{ frame.name }}-{{fe.name}}">
+            <label class="control-label">{{ fe.name }}</label>
+            <span class="word-index-help">{{ fe.definition }}</span>
+          </div>
+          {% endfor %}
+
+  </div>
+  <div class="col-md-4">
+      <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ frame.name }}</h3>
+          </div>
+          <div class="panel-body">
+            {{ frame.definition }}
+          </div>
+        </div>
+
+  </div>
+</div>
+
+

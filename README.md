@@ -43,7 +43,7 @@ Install the dependencies via `pip`:
 pip install -r requirements.txt
 ```
 
-The tool also uses the Framenet data distributed by NLTK. It looks for the data in `$HOME/nltk_data/corpora/framenet_v15`,
+The tool uses the Framenet data distributed by NLTK. It looks for the data in `$HOME/nltk_data/corpora/framenet_v15`,
 which is the default install location used by NLTK. If the data is not found, the tool will attempt to download it using NLTK.
 Unfortunately, this will fail if your NLTK data is in a non-standard location.
 

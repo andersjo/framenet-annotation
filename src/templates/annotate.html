@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    <div class="sentence lead">
+        {% for token in sentence %}
+            <div class="token" id="token-string-{{ token['token_i'] }}">
+                {% for pa in pre_annotations %}
+                    <div class="word-arg-marker inactive evoker-{{ pa.i }}" style="color: {{ pa.color }}"></div>
+                {% endfor %}
+
+                <div class="word">{{ token['word'] }}</div>
+                <div class="word-index">{{ loop.index }}</div >
+                <!--<div class="word-and-index">-->
+                    <!--<span class="word">{{ token['word'] }}</span>-->
+                    <!---->
+                <!--</div>-->
+                <div class="pos">{{ token['pos'] }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="annotation-box" style="clear: both">
+        <!-- Navigation panes -->
+        <ul class="nav nav-tabs">
+            {% for pa in pre_annotations %}
+                <li class="{% if loop.index == 1 %}active{% endif %}">
+                    <a href="#token-tab-{{ pa.i }}" data-toggle="tab">
+                        {{ pa.token.word }}  <span class="color-box" style="background-color: {{ pa.color }}"></span></a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Tabs -->
+
+        {% if next_id %}
+        <div class="pull-right" style="margin-top: 1em">
+            <a href="/annotate/{{ next_id }}" class="btn btn-primary btn-default active" role="button">Næste</a>
+        </div>
+
+        {% endif %}
+        <h3>Select frame</h3>
+
+
+        <form role="form" id="frame-form">
+            <div class="tab-content">
+            {% for pa in pre_annotations %}
+                <div class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="token-tab-{{ pa.i }}">
+                    <!--<p>Select frame for the word <em>{{ pa['token']['word'] }}</em></p>-->
+                    <div class="form-group">
+                        <label for="frame-select-{{ pa.i }}">Frame</label>
+                        <select class="frame-select form-control" id="frame-select-{{ pa.i }}" name="select-{{ pa.i }}">
+                            <option value="">...</option>
+                            {% for frame in pa.frames %}
+                                <option value="{{ pa.i }}-{{ frame.name }}">{{ frame.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="frames-for-token">
+                        {% for frame in pa.frames %}
+                            {% include "frame.html" %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+            {% endfor %}
+            </div>
+        </form>
+
+    </div>
+
+</div><!-- /.container -->
+
+
+
+
+<script language="javascript">
+    function saveState() {
+        $.ajax({
+            url: "save/{{ id }}",
+            data: $("#frame-form").serializeArray(),
+            type: 'POST',
+        }).error(function() {
+            console.log("Automatic save not working")
+        })
+    }
+
+
+    $(document).ready(function() {
+        $('select.frame-select').change(function (e) {
+            var selectedVal = $(e.target).val()
+            var parentTab = $(e.target).closest(".tab-pane")
+            console.log(selectedVal, parentTab)
+            $(".frame", parentTab).hide()
+            if (selectedVal != "") {
+                var tokenIndex = selectedVal.split("-")[0]
+                $("#" + selectedVal, parentTab).show()
+
+            }
+        })
+
+        $("#frame-form :input").keyup(colorSentence)
+        $("#frame-form :input").keyup(saveState)
+        $('select.frame-select').change()
+    })
+
+
+
+    function colorSentence() {
+        // Reset to no initial coloring
+        $(".word-arg-marker").addClass("inactive").text("")
+
+
+        // Re-add the colors
+        $("select.frame-select").each(function(_, frameSelect) {
+            var selectedFrame = $(frameSelect).val()
+            if (selectedFrame != "") {
+                var evokerIndex = selectedFrame.split("-")[0]
+                $("input[name^='" + selectedFrame + "']").each(function(_, argInput) {
+                    var selectedIndex = $(argInput).val()
+                    var feAbbrev = $(argInput).data("abbrev")
+                    if (selectedIndex != '') {
+                        $("#token-string-" + selectedIndex + " div.word-arg-marker.evoker-" + evokerIndex)
+                                .removeClass("inactive")
+                                .text(feAbbrev)
+                    }
+                })
+            }
+        })
+    }
+</script>
+
+
+
+{% endblock %}
