@@ -34,7 +34,7 @@
 
         {% if next_id %}
         <div class="pull-right" style="margin-top: 1em">
-            <a href="/annotate/{{ next_id }}" class="btn btn-primary btn-default active" role="button">Næste</a>
+            <a href="/annotate/{{ next_id }}" class="btn btn-primary btn-default active" role="button">Next</a>
         </div>
 
         {% endif %}
@@ -100,7 +100,9 @@
         })
 
         $("#frame-form :input").keyup(colorSentence)
+        $("#frame-form :input").change(colorSentence)
         $("#frame-form :input").keyup(saveState)
+        $("#frame-form :input").change(saveState)
         $('select.frame-select').change()
     })
 
