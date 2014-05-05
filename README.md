@@ -1,17 +1,17 @@
 # Framenet annotation
 
 This is a browser-based tool for annotating sentences with Framenet 1.5 frames and arguments.
-It starts a web server, which runs on your local computer and is only accessible from there.
+It starts a web server, which runs on the local machine and is only accessible there.
 
 ![Screenshot](https://dl.dropboxusercontent.com/u/1423772/framenet-annotation-screenshot.jpg "Screenshot")
 
 *Screenshot shows the annotation of a tweet from the [Ritter and Clark](https://github.com/aritter/twitter_nlp) corpus* 
 
 
-As input the tool accepts a folder of tab-separated files with one token per line and one sentence per file.
+As input the tool accepts a folder of files, each containing one sentence in tab-separated format with one token per line.
  The final column is a space-separated list of frames that could be triggered by that token.
- The output looks like the input, except the last column has been replaced by the annotations selected in the interface.
- Saving the annotations happens automatically in the background.
+ The output looks like the input, except for the last column, which has been replaced by the annotations selected in the interface.
+ Saving happens automatically in the background.
 
 Here is an example of the input format (see `data/demo/ritter.dev01`):
 
@@ -34,8 +34,7 @@ days    NOUN    Calendric_unit Timespan Measure_duration
 ?       .
 ```
 
-The CONLL9 format, where the word is in the second column and the part of speech is in the fourth column, is also supported.
-It will be automatically selected if the number of input columns is equal to 14.
+In the standard input format, the first column has the token form and the second column has the part of speech. Additionally, the tool supports the CONLL9 format, where the token is in the second column and the part of speech is in the fourth column. CONNL9 will be automatically selected if the number of input columns is equal to 14. 
 
 
 ## Installation
@@ -48,9 +47,8 @@ Install the dependencies via `pip`:
 pip install -r requirements.txt
 ```
 
-The tool uses the Framenet data distributed by NLTK. It looks for the data in `$HOME/nltk_data/corpora/framenet_v15`,
-which is the default install location used by NLTK. If the data is not found, the tool will attempt to download it using NLTK.
-Unfortunately, this will fail if your NLTK data is in a non-standard location.
+The tool uses the NLTK distribution of the Framenet data. It looks for the data in `$HOME/nltk_data/corpora/framenet_v15`,
+which is the default install location used by NLTK. If the data is not found, an attempt to download it will be made using NLTK. Unfortunately, this will fail if your NLTK data is in a non-standard location.
 
 ## Usage
 
