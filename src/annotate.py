@@ -105,7 +105,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print >>sys.stderr, "Reading Framenet"
     framenet_data = expanduser("~/nltk_data/corpora/framenet_v15/")
     if not os.path.isdir(framenet_data):
         nltk.download('framenet_v15')
@@ -116,7 +115,7 @@ if __name__ == "__main__":
                     if os.path.isfile(os.path.join(args.in_dir, fname))]
 
     print >>sys.stderr, "Found {} sentences for annotation".format(len(sentence_ids))
-    print >>sys.stderr, "Web server started. Navigate to http://127.0.0.1:0000/annotate/{} to get started".format(sentence_ids[0])
+    print >>sys.stderr, "Web server started. Navigate to\n\n\thttp://127.0.0.1:5000/annotate/{} \n\nto get started".format(sentence_ids[0])
 
 
     # Start the web server
