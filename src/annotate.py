@@ -105,9 +105,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    framenet_data = expanduser("~/nltk_data/corpora/framenet_v15/")
-    if not os.path.isdir(framenet_data):
+    def find_framenet():
+        for path in nltk.data.path:
+            candidate = os.path.join(path, os.path.join('corpora', 'framenet_v15'))
+
+            if os.path.isdir(candidate):
+                return candidate
+
+    framenet_data = find_framenet()
+    if not framenet_data:
         nltk.download('framenet_v15')
+        framenet_data = find_framenet()
 
     fnet = framenet.FramenetCorpusReader(framenet_data, [])
 
