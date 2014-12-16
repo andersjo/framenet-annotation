@@ -122,8 +122,19 @@ if __name__ == "__main__":
     sentence_ids = [fname for fname in os.listdir(args.in_dir)
                     if os.path.isfile(os.path.join(args.in_dir, fname))]
 
-    print >>sys.stderr, "Found {} sentences for annotation".format(len(sentence_ids))
-    print >>sys.stderr, "Web server started. Navigate to\n\n\thttp://127.0.0.1:5000/annotate/{} \n\nto get started".format(sentence_ids[0])
+    annotated_sentence_ids = [fname for fname in os.listdir(args.out_dir)
+                              if os.path.isfile(os.path.join(args.out_dir, fname))]
+
+    unannotated_sentence_ids = list(sorted(set(sentence_ids) - set(annotated_sentence_ids)))
+
+    if unannotated_sentence_ids:
+        first_sentence_id = unannotated_sentence_ids[0]
+    else:
+        print "WARNING. All sentences have been annotated. Restarting the annotation at the beginning."
+        first_sentence_id = sentence_ids[0]
+
+    print >>sys.stderr, "{} sentences found, of which {} are not yet annotated.".format(len(sentence_ids), len(unannotated_sentence_ids))
+    print >>sys.stderr, "Web server started. Navigate to\n\n\thttp://127.0.0.1:5000/annotate/{} \n\nto get started".format(first_sentence_id)
 
 
     # Start the web server
