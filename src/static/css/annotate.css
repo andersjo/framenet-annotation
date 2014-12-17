@@ -37,10 +37,10 @@ div.pos {
 }
 
 #annotation-box .frames-for-token {
-	height: 300px;
-	width: 100%;
+	height: 400px;
 	overflow-y: auto;
 	overflow-x: visible;
+	padding: 0em 2em;
 }
 
 
