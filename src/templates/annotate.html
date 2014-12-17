@@ -59,7 +59,6 @@
             {% for pa in pre_annotations %}
                 <div class="tab-pane {% if loop.index == 1 %}active{% endif %}"
                      id="token-tab-{{ pa.i }}" data-token-i="{{ pa.i }}">
-                    <!--<p>Select frame for the word <em>{{ pa['token']['word'] }}</em></p>-->
                     <div class="form-group">
                         <label for="frame-select-{{ pa.i }}">Frame</label>
                         <select class="frame-select form-control" id="frame-select-{{ pa.i }}" name="select-{{ pa.i }}">
