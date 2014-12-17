@@ -5,10 +5,22 @@
         {% for token in sentence %}
             <div class="token" id="token-string-{{ token['token_i'] }}">
                 {% for pa in pre_annotations %}
+                    <!--
                     <div class="word-arg-marker inactive evoker-{{ pa.i }}" style="color: {{ pa.color }}"></div>
+                    !-->
                 {% endfor %}
 
-                <div class="word">{{ token['word'] }}</div>
+                <div class="word">
+                    {% if token.frames %}
+                        <a href="#token-tab-{{ token['token_i'] }}"
+                           data-toggle="tab"
+                           data-token-i="{{ token['token_i'] }}">
+                            {{ token.word }}
+                        </a>
+                    {% else %}
+                        {{ token['word'] }}
+                    {% endif %}
+                </div>
                 <div class="word-index">{{ loop.index }}</div >
                 <!--<div class="word-and-index">-->
                     <!--<span class="word">{{ token['word'] }}</span>-->
@@ -21,6 +33,7 @@
 
     <div id="annotation-box" style="clear: both">
         <!-- Navigation panes -->
+        <!--
         <ul class="nav nav-tabs">
             {% for pa in pre_annotations %}
                 <li class="{% if loop.index == 1 %}active{% endif %}">
@@ -29,6 +42,7 @@
                 </li>
             {% endfor %}
         </ul>
+        !-->
 
         <!-- Tabs -->
 
@@ -40,11 +54,11 @@
         {% endif %}
         <h3>Select frame</h3>
 
-
         <form role="form" id="frame-form">
             <div class="tab-content">
             {% for pa in pre_annotations %}
-                <div class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="token-tab-{{ pa.i }}">
+                <div class="tab-pane {% if loop.index == 1 %}active{% endif %}"
+                     id="token-tab-{{ pa.i }}" data-token-i="{{ pa.i }}">
                     <!--<p>Select frame for the word <em>{{ pa['token']['word'] }}</em></p>-->
                     <div class="form-group">
                         <label for="frame-select-{{ pa.i }}">Frame</label>
@@ -89,28 +103,52 @@
     $(document).ready(function() {
         $('select.frame-select').change(function (e) {
             var selectedVal = $(e.target).val()
-            var parentTab = $(e.target).closest(".tab-pane")
-            console.log(selectedVal, parentTab)
-            $(".frame", parentTab).hide()
+            var parentTab = $(e.target).closest(".tab-pane");
+            console.log(selectedVal, parentTab);
+            $(".frame", parentTab).hide();
             if (selectedVal != "") {
-                var tokenIndex = selectedVal.split("-")[0]
-                $("#" + selectedVal, parentTab).show()
+                var tokenIndex = selectedVal.split("-")[0];
+                $("#" + selectedVal, parentTab).show();
 
             }
         })
 
-        $("#frame-form :input").keyup(colorSentence)
-        $("#frame-form :input").change(colorSentence)
-        $("#frame-form :input").keyup(saveState)
-        $("#frame-form :input").change(saveState)
-        $('select.frame-select').change()
-    })
+        // Any changes to the form trigger a redraw of the sentence,
+        // as well as serialization of the state
+        $("#frame-form :input")
+                .keyup(colorSentence)
+                .change(colorSentence)
+                .keyup(saveState)
+                .change(saveState);
 
+        // Activate the first token
+        $('.token a').first().addClass("active")
+
+        //
+        $('select.frame-select').change();
+
+        // Event listener for clicks on frame-evoking words in sentence
+        $('.word a').click(function (e) {
+            var tokenIndex = $(this).data("token-i")
+            console.log($(this).data("token-i"), "clicked")
+            $('.evoker').removeClass('active')
+            $('.evoker-' + tokenIndex).addClass('active')
+
+            $('.word a').removeClass('active')
+            $(this).addClass('active')
+        })
+    });
+
+
+
+    function activeTokenIndex() {
+        return $(".tab-pane.active").data("token-i");
+    }
 
 
     function colorSentence() {
         // Reset to no initial coloring
-        $(".word-arg-marker").addClass("inactive").text("")
+        $(".word-arg-marker").remove()
 
 
         // Re-add the colors
@@ -122,9 +160,18 @@
                     var selectedIndex = $(argInput).val()
                     var feAbbrev = $(argInput).data("abbrev")
                     if (selectedIndex != '') {
-                        $("#token-string-" + selectedIndex + " div.word-arg-marker.evoker-" + evokerIndex)
-                                .removeClass("inactive")
-                                .text(feAbbrev)
+                        var elem = $(document.createElement('div'))
+                        elem.attr("id", "#token-string-" + selectedIndex + " div.word-arg-marker.evoker-" + evokerIndex)
+                        elem.text(feAbbrev)
+                        elem.addClass("word-arg-marker");
+                        elem.addClass("evoker-" + evokerIndex);
+                        elem.addClass("evoker");
+
+                        if (evokerIndex == activeTokenIndex()) {
+                            elem.addClass("active");
+                        }
+
+                        $("#token-string-" + selectedIndex).prepend(elem)
                     }
                 })
             }

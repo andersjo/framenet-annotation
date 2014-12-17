@@ -1,16 +1,31 @@
-/* @override http://localhost:5000/static/css/annotate.css */
+/* @override 
+	http://localhost:5000/static/css/annotate.css
+	http://127.0.0.1:5000/static/css/annotate.css
+*/
 
 /* Sentence display */
 div.token {
-	float: left;
-	margin-left: 1em;
+	/* float: left; */
+	display: inline-block;
+	margin-left: 0.4em;
 	margin-bottom: 0.5em;
-	font-size: 1.5em;
+	font-size: 1.4em;
 	text-align: center;
 }
 
+div.word a.active {
+	font-weight: bold;
+	text-decoration: underline;
+	color: brown;
+}
+
+div.word {
+	color: gray;
+}
+
+
 div.word-index {
-	font-size: 0.7em;
+	font-size: 0.5em;
 	color: gray;
 	text-align: center;
 	margin-top:  -6px;
@@ -21,21 +36,33 @@ div.pos {
 	font-size:  0.7em;
 }
 
+#annotation-box .frames-for-token {
+	height: 300px;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: visible;
+}
+
+
 #annotation-box .tab-content {
 	padding-right: 1em;
 	padding-left: 1em;
 }
 
 .word-arg-marker {
-	height: 12px;
+	height: 16px;
 	margin-top: 2px;
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 
 .word-arg-marker.inactive {
 	background-color: white !important;
 }
+
+.word-arg-marker.active {
+	font-weight: bold;
+	color: brown;}
 
 
 span.color-box {

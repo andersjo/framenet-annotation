@@ -40,7 +40,14 @@
             <h3 class="panel-title">{{ frame.name }}</h3>
           </div>
           <div class="panel-body">
-            {{ frame.definition }}
+            <p>
+              {{ frame.definition }}
+            </p>
+            <p>
+                See FrameNet's definition of
+                <a href="https://fndrupal.icsi.berkeley.edu/fndrupal/frame_report?name={{ frame.name}}">{{ frame.name}}</a>.
+            </p>
+
           </div>
         </div>
 
