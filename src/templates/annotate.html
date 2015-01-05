@@ -48,6 +48,7 @@
 
         {% if next_id %}
         <div class="pull-right" style="margin-top: 1em">
+            <a data-toggle="modal" data-target="#confirm-mark-error" href="#" class="btn btn-link" role="button">Mark as error</a>
             <a href="/annotate/{{ next_id }}" class="btn btn-primary btn-default active" role="button">Next</a>
         </div>
 
@@ -81,6 +82,22 @@
         </form>
 
     </div>
+
+    <div class="modal fade" id="confirm-mark-error" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                This sentence contains that prevents it from being annotated. Any annotations already will be deleted.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a href="/mark_as_error/{{ id }}" class="btn btn-danger danger">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 </div><!-- /.container -->
 

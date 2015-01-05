@@ -3,7 +3,7 @@ import codecs
 from collections import defaultdict
 import json
 from os.path import expanduser
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import sys
 import nltk
 import framenet
@@ -67,6 +67,18 @@ def save_sentence(id=None):
             print >>out, u"\t".join(parts)
 
     return "OK"
+
+
+@app.route("/mark_as_error/<id>")
+def mark_as_error(id=None):
+    next_id_index = sentence_ids.index(id) + 1
+    next_id = sentence_ids[next_id_index] if next_id_index < len(sentence_ids) else None
+
+    with codecs.open(os.path.join(args.out_dir, id), 'w', encoding='utf-8') as out:
+        out.write("INVALID")
+
+    return redirect("/annotate/{}".format(next_id), code=302)
+
 
 
 @app.route("/annotate/<id>")
