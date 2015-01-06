@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    <h3>Annotations status</h3>
+    <p>The progress bars are grouped by file prefixes.</p>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>File prefix</th>
+                <th>Progress</th>
+            </tr>
+        </thead>
+
+        {% for group_name, stats in annotated_by_group.items() | sort %}
+        <tr>
+            <td>{{ group_name }}</td>
+            <td width="100%">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" style="width: {{ stats['done_pct'] }}%">
+                      {{ annotated_by_group[group_name]['done'] }} done
+                  </div>
+                  <div class="progress-bar progress-bar-warning" style="width: {{ stats['invalid_pct'] }}%">
+                    {{ annotated_by_group[group_name]['invalid'] }} invalid
+                  </div>
+
+                  <div class="progress-bar" style="width: {{ stats['remaining_pct'] }}%">
+                      {{ annotated_by_group[group_name]['remaining'] }} left
+                  </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <p><a href="/annotation_status">Refresh status</a></p>
+
+
+</div>
+
+
+
+
+
+
+
+{% endblock %}

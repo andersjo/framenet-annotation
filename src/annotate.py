@@ -1,11 +1,13 @@
 import argparse
 import codecs
-from collections import defaultdict
+from collections import defaultdict, Counter
+from itertools import groupby
 import json
 from os.path import expanduser
 from flask import Flask, render_template, request, redirect
 import sys
 import nltk
+import re
 import framenet
 import os
 
@@ -43,28 +45,78 @@ def read_sentence(id):
 
     return sentence
 
+
+def get_annotation_status_by_group():
+    annotated_by_group = defaultdict(Counter)
+    for fname in os.listdir(args.in_dir):
+        if os.path.isfile(os.path.join(args.in_dir, fname)):
+            m = re.match("(.*?)(\d+)", fname)
+            group_name = m.groups()[0]
+            annotated_by_group[group_name]['total'] += 1
+
+    for fname in os.listdir(args.out_dir):
+        if os.path.isfile(os.path.join(args.out_dir, fname)):
+            m = re.match("(.*?)(\d+)", fname)
+            group_name = m.groups()[0]
+            if fname.endswith(".invalid"):
+                annotated_by_group[group_name]['invalid'] += 1
+            else:
+                annotated_by_group[group_name]['done'] += 1
+
+
+    for group_name, stats in annotated_by_group.items():
+        stats['done_pct'] = (stats['done'] * 100) / stats['total']
+        stats['invalid_pct'] = (stats['invalid'] * 100) / stats['total']
+        stats['remaining'] = stats['total'] - stats['invalid'] - stats['done']
+        stats['remaining_pct'] = (stats['remaining'] * 100) / stats['total']
+
+    return annotated_by_group
+
+def get_annotation_status():
+    annotated = Counter()
+    for fname in os.listdir(args.in_dir):
+        if os.path.isfile(os.path.join(args.in_dir, fname)):
+            annotated['total'] += 1
+
+    for fname in os.listdir(args.out_dir):
+        if os.path.isfile(os.path.join(args.out_dir, fname)):
+            if fname.endswith(".invalid"):
+                annotated['invalid'] += 1
+            else:
+                annotated['done'] += 1
+
+
+    annotated['done_pct'] = (annotated['done'] * 100) / annotated['total']
+    annotated['invalid_pct'] = (annotated['invalid'] * 100) / annotated['total']
+    annotated['remaining'] = annotated['total'] - annotated['invalid'] - annotated['done']
+    annotated['remaining_pct'] = (annotated['remaining'] * 100) / annotated['total']
+
+    return annotated    
+    
+
 @app.route("/annotate/save/<id>", methods=['POST'])
 def save_sentence(id=None):
     sentence = read_sentence(id)
 
-    with codecs.open(os.path.join(args.out_dir, id), 'w', encoding='utf-8') as out:
+    out = codecs.open(os.path.join(args.out_dir, id), 'w', encoding='utf-8')
+    for i, token in enumerate(sentence, 1):
+        frame_name = None
+        arguments = {}
 
-        for i, token in enumerate(sentence, 1):
-            frame_name = None
-            arguments = {}
-
-            if len(token['frames']) > 0:
-                selected_frame = request.form['select-{}'.format(i)]
-                if selected_frame:
-                    frame_name = selected_frame.split("-")[1]
-                    # Grab arguments
-                    for key, val in request.form.items():
-                        if key.startswith(selected_frame) and val:
-                            arguments[key.split("-")[2]] = val
+        if len(token['frames']) > 0:
+            selected_frame = request.form['select-{}'.format(i)]
+            if selected_frame:
+                frame_name = selected_frame.split("-")[1]
+                # Grab arguments
+                for key, val in request.form.items():
+                    if key.startswith(selected_frame) and val:
+                        arguments[key.split("-")[2]] = val
 
 
-            parts = map(unicode, [token['token_i'], token['word'], token['pos'], frame_name or '', json.dumps(arguments)])
-            print >>out, u"\t".join(parts)
+        parts = map(unicode, [token['token_i'], token['word'], token['pos'], frame_name or '', json.dumps(arguments)])
+        print >>out, u"\t".join(parts)
+
+    out.close()
 
     return "OK"
 
@@ -74,11 +126,19 @@ def mark_as_error(id=None):
     next_id_index = sentence_ids.index(id) + 1
     next_id = sentence_ids[next_id_index] if next_id_index < len(sentence_ids) else None
 
-    with codecs.open(os.path.join(args.out_dir, id), 'w', encoding='utf-8') as out:
-        out.write("INVALID")
+    filename = os.path.join(args.out_dir, id)
+    if os.path.isfile(filename):
+        os.remove(filename)
+
+    filename += ".invalid"
+    open(filename, 'w').close()
 
     return redirect("/annotate/{}".format(next_id), code=302)
 
+
+@app.route("/annotation_status")
+def annotation_status():
+    return render_template('annotation_status.html', annotated_by_group=get_annotation_status_by_group())
 
 
 @app.route("/annotate/<id>")
@@ -106,7 +166,10 @@ def annotate_sentence(id=None):
             pre_annotations.append(pre_annotation)
 
 
-    return render_template('annotate.html', sentence=sentence, pre_annotations=pre_annotations, id=id, next_id=next_id)
+    return render_template('annotate.html',
+                           sentence=sentence, pre_annotations=pre_annotations,
+                           id=id, next_id=next_id,
+                           annotation_status=get_annotation_status())
 
 
 if __name__ == "__main__":

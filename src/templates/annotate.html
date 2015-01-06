@@ -1,4 +1,29 @@
 {% extends "layout.html" %}
+{% block annotation_progress %}
+
+        <p class="navbar-right navbar-text"><a href="/annotation_status" target="_blank" class="navbar-link">Details</a></p>
+
+        <div class="progress navbar-right navbar-text" style="width: 50%">
+          <div class="progress-bar progress-bar-success" style="width: {{ annotation_status['done_pct'] }}%">
+              {{ annotation_status['done'] }} done
+          </div>
+          <div class="progress-bar progress-bar-warning" style="width: {{ annotation_status['invalid_pct'] }}%">
+            {{ annotation_status['invalid'] }} invalid
+          </div>
+
+          <div class="progress-bar" style="width: {{ annotation_status['remaining_pct'] }}%">
+              {{ annotation_status['remaining'] }} left
+          </div>
+        </div>
+
+
+
+
+
+{% endblock %}
+
+
+
 {% block body %}
 <div class="container">
     <div class="sentence lead">
