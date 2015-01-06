@@ -197,7 +197,7 @@ if __name__ == "__main__":
     sentence_ids = [fname for fname in os.listdir(args.in_dir)
                     if os.path.isfile(os.path.join(args.in_dir, fname))]
 
-    annotated_sentence_ids = [fname for fname in os.listdir(args.out_dir)
+    annotated_sentence_ids = [fname.replace('.invalid', '') for fname in os.listdir(args.out_dir)
                               if os.path.isfile(os.path.join(args.out_dir, fname))]
 
     unannotated_sentence_ids = list(sorted(set(sentence_ids) - set(annotated_sentence_ids)))
