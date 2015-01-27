@@ -91,8 +91,19 @@ def get_annotation_status():
     annotated['remaining'] = annotated['total'] - annotated['invalid'] - annotated['done']
     annotated['remaining_pct'] = (annotated['remaining'] * 100) / annotated['total']
 
-    return annotated    
-    
+    return annotated
+
+def next_unannotated_sentence_id(current_id=None):
+    _, _, in_dir_files = os.walk(args.in_dir).next()
+    _, _, out_dir_files = os.walk(args.out_dir).next()
+
+    annotated_sentence_ids = set(fname.replace('.invalid', '') for fname in out_dir_files)
+    if current_id:
+        annotated_sentence_ids.add(current_id)
+    unannotated_sentence_ids = list(sorted(set(in_dir_files) - set(annotated_sentence_ids)))
+
+    if unannotated_sentence_ids:
+        return unannotated_sentence_ids[0]
 
 @app.route("/annotate/save/<id>", methods=['POST'])
 def save_sentence(id=None):
@@ -123,8 +134,7 @@ def save_sentence(id=None):
 
 @app.route("/mark_as_error/<id>")
 def mark_as_error(id=None):
-    next_id_index = sentence_ids.index(id) + 1
-    next_id = sentence_ids[next_id_index] if next_id_index < len(sentence_ids) else None
+    next_id = next_unannotated_sentence_id(id)
 
     filename = os.path.join(args.out_dir, id)
     if os.path.isfile(filename):
@@ -144,8 +154,7 @@ def annotation_status():
 @app.route("/annotate/<id>")
 def annotate_sentence(id=None):
     sentence = read_sentence(id)
-    next_id_index = sentence_ids.index(id) + 1
-    next_id = sentence_ids[next_id_index] if next_id_index < len(sentence_ids) else None
+    next_id = next_unannotated_sentence_id(id)
 
     pre_annotations = []
     for i, token in enumerate(sentence):
@@ -194,23 +203,13 @@ if __name__ == "__main__":
 
     fnet = framenet.FramenetCorpusReader(framenet_data, [])
 
-    sentence_ids = [fname for fname in os.listdir(args.in_dir)
-                    if os.path.isfile(os.path.join(args.in_dir, fname))]
+    first_sentence_id = next_unannotated_sentence_id()
 
-    annotated_sentence_ids = [fname.replace('.invalid', '') for fname in os.listdir(args.out_dir)
-                              if os.path.isfile(os.path.join(args.out_dir, fname))]
-
-    unannotated_sentence_ids = list(sorted(set(sentence_ids) - set(annotated_sentence_ids)))
-
-    if unannotated_sentence_ids:
-        first_sentence_id = unannotated_sentence_ids[0]
+    if first_sentence_id :
+        print >>sys.stderr, "Web server started. Navigate to\n\n\thttp://127.0.0.1:5000/annotate/{} \n\nto get started".format(first_sentence_id)
     else:
-        print "WARNING. All sentences have been annotated. Restarting the annotation at the beginning."
-        first_sentence_id = sentence_ids[0]
-
-    print >>sys.stderr, "{} sentences found, of which {} are not yet annotated.".format(len(sentence_ids), len(unannotated_sentence_ids))
-    print >>sys.stderr, "Web server started. Navigate to\n\n\thttp://127.0.0.1:5000/annotate/{} \n\nto get started".format(first_sentence_id)
-
+        print >>sys.stderr, "Congratulations! All sentences have been annotated."
+        print >>sys.stderr, "If you want to redo a specific annotation, you can do that by navigating to \n\n\thttp://127.0.0.1:5000/annotate/<sentence_id> in your browser"
 
     # Start the web server
     # app.run(debug=True)
